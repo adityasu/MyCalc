@@ -9,6 +9,7 @@ import android.view.View;
 import com.aditya.madscalculator.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -134,9 +135,10 @@ public class MainActivity extends AppCompatActivity {
         binding.btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                returnCalculation(sb1);
-
-                binding.textViewdemo.setText(sb2.toString());
+               // returnCalculation(sb1);
+                ;
+                String demo = infixToPostFix(binding.textView.getText().toString());
+                binding.textViewdemo.setText(demo);
             }
         });
 
@@ -147,11 +149,76 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    static int precedence(char c){
+        switch (c){
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+            case '^':
+                return 3;
+        }
+        return -1;
+    }
 
-    public void returnCalculation(ArrayList<String> sb1) {
+    static String infixToPostFix(String expression){
+
+        String result = "";
+        Stack<Character> stack = new Stack<>();
+        for (int i = 0; i <expression.length() ; i++) {
+            char c = expression.charAt(i);
+
+            //check if char is operator
+            if(precedence(c)>0){
+                while(stack.isEmpty()==false && precedence(stack.peek())>=precedence(c)){
+                    result += stack.pop();
+                }
+                stack.push(c);
+            }else if(c==')'){
+                char x = stack.pop();
+                while(x!='('){
+                    result += x;
+                    x = stack.pop();
+                }
+            }else if(c=='('){
+                stack.push(c);
+            }else{
+                //character is neither operator nor (
+                result += c;
+            }
+        }
+        for (int i = 0; i <=stack.size() ; i++) {
+            result += stack.pop();
+        }
+        return result;
+    }
+
+    /*public void returnCalculation(ArrayList<String> sb1) {
         int index;
         while (sb1.size() > 0) {
-            if (sb1.contains(" * ")) {
+            for( int i =0; i < sb1.size(); i++) {
+                switch (sb1.get(i)) {
+                    case "*":
+                        appendValue(i,"*");
+                        i = 0;
+                    case "-":
+                        appendValue(i,"*");
+                        i = 0;
+                    case "/":
+                        appendValue(i,"*");
+                        i = 0;
+                    case "*":
+                        appendValue(i,"*");
+                        i = 0;
+
+
+                }
+            }
+
+        }
+            *//*if (sb1.contains(" * ")) {
                 index = sb1.indexOf(" * ");
                 appendValue(index, " * ");
                 removeValue(index);
@@ -171,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 appendValue(index, " / ");
                 removeValue(index);
             }
-        }
+        }*//*
     }
 
     public void appendValue(int index, String operation) {
@@ -188,5 +255,5 @@ public class MainActivity extends AppCompatActivity {
         if(index + 1 > sb1.size()) {
             sb1.remove(index + 1);
         }
-    }
+    }*/
 }
